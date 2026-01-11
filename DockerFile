@@ -1,0 +1,34 @@
+# Étape 1 : Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copier les fichiers de config
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm install --legacy-peer-deps
+
+# Copier le code source
+COPY . .
+
+# Build du projet NestJS
+RUN npm run build
+
+# Étape 2 : Runtime
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# Copier uniquement les fichiers nécessaires
+COPY package*.json ./
+RUN npm install --omit=dev --legacy-peer-deps
+
+# Copier le build depuis l’étape builder
+COPY --from=builder /app/dist ./dist
+
+# Exposer le port
+EXPOSE 3000
+
+# Commande de démarrage
+CMD ["node", "dist/main.js"]
