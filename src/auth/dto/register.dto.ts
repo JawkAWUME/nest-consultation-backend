@@ -43,13 +43,6 @@ export class RegisterDto {
   })
   @IsNotEmpty()
   @IsString()
-  @MinLength(8)
-  @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    {
-      message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial',
-    }
-  )
   password: string;
 
   @ApiProperty({
@@ -59,9 +52,6 @@ export class RegisterDto {
   })
   @IsOptional()
   @IsString()
-  @Matches(/^[0-9]{9}$/, {
-    message: 'Le numéro de téléphone doit contenir 9 chiffres',
-  })
   numeroTelephone?: string;
 
   @ApiProperty({
@@ -161,8 +151,11 @@ export class RegisterDto {
   })
   @IsOptional()
   tarif?: number;
-    niveauAcces: string;
+     @IsOptional()
+    niveauAcces?: string;
+     @IsOptional()
     estSuperAdmin: boolean;
+     @IsOptional()
     departement: string;
 
 }
