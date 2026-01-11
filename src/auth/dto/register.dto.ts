@@ -45,14 +45,14 @@ export class RegisterDto {
   @IsString()
   motDePasse: string;
 
-  @ApiProperty({
-    description: 'Numéro de téléphone',
-    example: '771234567',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  numeroTelephone?: string;
+    @ApiProperty({
+        description: 'Numéro de téléphone',
+        example: '771234567',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    telephone?: string;
 
   @ApiProperty({
     description: 'Adresse',

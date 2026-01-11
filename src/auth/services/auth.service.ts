@@ -101,7 +101,7 @@ export class AuthService {
 
     // Hasher le mot de passe
     const salt = await bcrypt.genSalt();
-    user.motDePasse = await bcrypt.hash(registerDto.password, salt);
+    user.motDePasse = await bcrypt.hash(registerDto.motDePasse, salt);
 
     // Sauvegarder l'utilisateur
     const savedUser = await this.userRepository.save(user);
@@ -195,7 +195,7 @@ export class AuthService {
     
     admin.coordonnees = {
       email: dto.email,
-      numeroTelephone: dto.numeroTelephone,
+      numeroTelephone: dto.telephone,
       adresse: dto.adresse,
     };
     
@@ -218,7 +218,7 @@ export class AuthService {
     
     patient.coordonnees = {
       email: dto.email,
-      numeroTelephone: dto.numeroTelephone,
+      numeroTelephone: dto.telephone,
       adresse: dto.adresse,
     };
     
@@ -247,7 +247,7 @@ export class AuthService {
     
     proSante.coordonnees = {
       email: dto.email,
-      numeroTelephone: dto.numeroTelephone,
+      numeroTelephone: dto.telephone,
       adresse: dto.adresse,
     };
     
