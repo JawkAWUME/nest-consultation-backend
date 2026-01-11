@@ -31,7 +31,7 @@ export const databaseConfig = (): TypeOrmModuleOptions => {
     // Variables séparées
     config = {
       ...config,
-      host: process.env.DATABASE_HOST || 'localhost',
+      host: process.env.DATABASE_HOST || 'dpg-d57k6gn5r7bs7386uta0-a.oregon-postgres.render.com',
       port:  5432,
       username: process.env.DATABASE_USERNAME || 'postgres',
       password: process.env.DATABASE_PASSWORD || '',
