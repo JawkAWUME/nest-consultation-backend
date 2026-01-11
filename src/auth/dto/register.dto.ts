@@ -43,7 +43,7 @@ export class RegisterDto {
   })
   @IsNotEmpty()
   @IsString()
-  password: string;
+  motDePasse: string;
 
   @ApiProperty({
     description: 'Numéro de téléphone',
