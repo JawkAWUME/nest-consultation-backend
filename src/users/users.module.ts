@@ -21,11 +21,6 @@ import { ProSanteRepository } from './repositories/pro-sante.repository';
     ProSanteRepository
   ],
 })
-export class UsersModule implements OnModuleInit {
-  private readonly logger = new Logger(UsersModule.name);
-
-  onModuleInit() {
-    this.logger.log(`✅ ${UsersModule.name} initialisé avec succès`);
-    this.logger.debug(`📦 Entités chargées: User, Admin, Patient, ProSante`);
-  }
+export class UsersModule {
+  
 }

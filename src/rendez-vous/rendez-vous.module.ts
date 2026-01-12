@@ -21,11 +21,6 @@ import { ProSante } from 'src/users/entities/pro-sante.entity';
   controllers: [RendezVousController],
   exports: [RendezVousService],
 })
-export class RendezVousModule implements OnModuleInit {
-  private readonly logger = new Logger(RendezVousModule.name);
-
-  onModuleInit() {
-    this.logger.log(`✅ ${RendezVousModule.name} initialisé avec succès`);
-    this.logger.debug(`📦 Dependencies chargées: UsersModule`);
-  }
+export class RendezVousModule {
+  
 }

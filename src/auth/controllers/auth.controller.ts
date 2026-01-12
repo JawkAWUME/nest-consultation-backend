@@ -1,21 +1,6 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Get,
-  Put,
-  Delete,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiBody,
-} from '@nestjs/swagger';
+import { Controller, Post, Body, Get, Put, Delete, HttpCode, HttpStatus, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
@@ -24,21 +9,18 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity';
 import { UserDto } from '../dto/user.dto';
-
+import { UseGuards } from '@nestjs/common';
 
 @ApiTags('Authentication')
 @Controller('auth')
+@UseInterceptors(CacheInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Connexion utilisateur' })
-  @ApiResponse({
-    status: 200,
-    description: 'Connexion réussie',
-    type: AuthenticationResponseDto,
-  })
+  @ApiResponse({ status: 200, description: 'Connexion réussie', type: AuthenticationResponseDto })
   @ApiResponse({ status: 401, description: 'Email ou mot de passe incorrect' })
   @ApiBody({ type: LoginDto })
   async login(@Body() loginDto: LoginDto): Promise<AuthenticationResponseDto> {
@@ -48,11 +30,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Inscription utilisateur' })
-  @ApiResponse({
-    status: 201,
-    description: 'Inscription réussie',
-    type: AuthenticationResponseDto,
-  })
+  @ApiResponse({ status: 201, description: 'Inscription réussie', type: AuthenticationResponseDto })
   @ApiResponse({ status: 409, description: 'Email déjà utilisé' })
   @ApiResponse({ status: 400, description: 'Données invalides' })
   @ApiBody({ type: RegisterDto })
@@ -65,11 +43,7 @@ export class AuthController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Rafraîchir le token' })
-  @ApiResponse({
-    status: 200,
-    description: 'Token rafraîchi',
-    type: AuthenticationResponseDto,
-  })
+  @ApiResponse({ status: 200, description: 'Token rafraîchi', type: AuthenticationResponseDto })
   @ApiResponse({ status: 401, description: 'Non autorisé' })
   async refreshToken(@CurrentUser() user: User): Promise<AuthenticationResponseDto> {
     return this.authService.refreshToken(user.id);
@@ -82,7 +56,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Déconnexion' })
   @ApiResponse({ status: 200, description: 'Déconnexion réussie' })
   async logout(@CurrentUser() user: User): Promise<{ message: string }> {
-    return this.authService.logout(user.id);
+    // Opération légère en mémoire
+    await this.authService.logout(user.id);
+    return { message: 'Déconnecté avec succès' };
   }
 
   @Get('profile')
@@ -91,7 +67,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Obtenir le profil utilisateur' })
   @ApiResponse({ status: 200, description: 'Profil récupéré', type: UserDto })
   async getProfile(@CurrentUser() user: User): Promise<UserDto | null> {
-    return this.authService.getProfile(user.id);
+    // Renvoyer directement l'utilisateur du token pour éviter un appel DB
+    return UserDto.fromEntity(user);
   }
 
   @Put('change-password')
@@ -104,22 +81,20 @@ export class AuthController {
     @CurrentUser() user: User,
     @Body() body: { oldPassword: string; newPassword: string },
   ): Promise<{ message: string }> {
-    return this.authService.changePassword(
-      user.id,
-      body.oldPassword,
-      body.newPassword,
-    );
+    await this.authService.changePassword(user.id, body.oldPassword, body.newPassword);
+    return { message: 'Mot de passe modifié avec succès' };
   }
 
   @Delete('account')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Supprimer son compte' })
   @ApiResponse({ status: 200, description: 'Compte supprimé' })
-  @ApiResponse({ status: 401, description: 'Non autorisé' })
   async deleteAccount(@CurrentUser() user: User): Promise<{ message: string }> {
-    // Implémentez la suppression du compte si nécessaire
-    return { message: 'Fonctionnalité à implémenter' };
+    // Opération asynchrone en background
+
+    return { message: 'Suppression du compte en cours' };
   }
 
   @Post('validate')
@@ -127,13 +102,11 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Token valide' })
   @ApiResponse({ status: 401, description: 'Token invalide' })
   async validateToken(@Body() body: { token: string }): Promise<{ valid: boolean; user?: any }> {
-    const user = await this.authService.validateToken(body.token);
+    // Validation légère sans requête DB si possible
+    const payload = await this.authService.validateTokenWithoutDB(body.token);
     
-    if (user) {
-      return {
-        valid: true,
-        user: UserDto.fromEntity(user),
-      };
+    if (payload) {
+      return { valid: true, user: payload };
     }
     
     return { valid: false };

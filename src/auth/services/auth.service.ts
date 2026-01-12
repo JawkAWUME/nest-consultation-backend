@@ -20,6 +20,8 @@ import { UsersService } from '../../users/services/users.service';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly tokenBlacklist = new Set<string>(); // Simple cache en mémoire
+
 
   constructor(
     private readonly usersService: UsersService,
@@ -28,6 +30,62 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  async validateTokenWithoutDB(token: string): Promise<any> {
+    try {
+      // 1. Vérifier si le token est dans la blacklist (déconnexion)
+      if (this.tokenBlacklist.has(token)) {
+        this.logger.debug('Token blacklisted');
+        return null;
+      }
+
+      // 2. Vérifier la signature JWT sans expiration check
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_SECRET'),
+        ignoreExpiration: false, // On vérifie quand même l'expiration
+      });
+
+      // 3. Validation basique des claims
+      if (!payload || !payload.sub || !payload.email) {
+        this.logger.warn('Token payload invalide');
+        return null;
+      }
+
+      // 4. Vérifier l'expiration manuellement pour éviter les erreurs
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp && payload.exp < now) {
+        this.logger.debug('Token expiré');
+        return null;
+      }
+
+      // 5. Extraire uniquement les informations nécessaires
+      const safePayload = {
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        exp: payload.exp,
+        iat: payload.iat,
+      };
+
+      return safePayload;
+
+    } catch (error) {
+      this.logger.error(`Token validation error: ${error.message}`);
+      
+      // Log spécifique selon le type d'erreur
+      if (error.name === 'TokenExpiredError') {
+        this.logger.debug('Token expired');
+      } else if (error.name === 'JsonWebTokenError') {
+        this.logger.debug('Invalid token format');
+      } else if (error.name === 'NotBeforeError') {
+        this.logger.debug('Token not yet active');
+      }
+      
+      return null;
+    }
+  }
 
   async validateUser(email: string, password: string): Promise<User | null> {
     try {
