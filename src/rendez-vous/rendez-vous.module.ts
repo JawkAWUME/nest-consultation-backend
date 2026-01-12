@@ -16,10 +16,10 @@ import { ProSante } from 'src/users/entities/pro-sante.entity';
   ],
   providers: [
     RendezVousService,
-    EmailService
+    EmailService, ParseDatePipe
   ],
   controllers: [RendezVousController],
-  exports: [RendezVousService, ParseDatePipe],
+  exports: [RendezVousService],
 })
 export class RendezVousModule {
   
