@@ -1,25 +1,22 @@
-// src/app.module.ts
 import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { WinstonModule } from 'nest-winston';
+import { CacheModule } from '@nestjs/cache-manager'; // ✅ ajout
 import * as winston from 'winston';
 import configuration from './config/configuration';
 import { databaseConfig } from './config/database.config';
-
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RendezVousModule } from './rendez-vous/rendez-vous.module';
 import { SeedModule } from './seed/seed.module';
-// import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
-   
     // Configuration
     ConfigModule.forRoot({
       load: [configuration],
@@ -83,7 +80,7 @@ import { SeedModule } from './seed/seed.module';
         transport: {
           host: config.get('app.mail.host'),
           port: config.get('app.mail.port'),
-          secure: false, // TLS
+          secure: false,
           auth: {
             user: config.get('app.mail.user'),
             pass: config.get('app.mail.pass'),
@@ -94,15 +91,17 @@ import { SeedModule } from './seed/seed.module';
         },
       }),
     }),
+
+    // ✅ Cache
+    CacheModule.register({
+      ttl: 60, // durée par défaut en secondes
+      max: 100, // nombre max d’éléments en cache
+    }),
+
     UsersModule,
     forwardRef(() => RendezVousModule),
     AuthModule,
-
-  
-    
-    // Modules fonctionnels
-    
-    // PaymentsModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
