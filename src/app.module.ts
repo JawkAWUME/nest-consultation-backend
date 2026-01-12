@@ -96,6 +96,7 @@ import { SeedModule } from './seed/seed.module';
     CacheModule.register({
       ttl: 60, // durée par défaut en secondes
       max: 100, // nombre max d’éléments en cache
+      isGlobal: true
     }),
 
     UsersModule,
