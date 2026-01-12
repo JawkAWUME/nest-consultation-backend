@@ -1,4 +1,4 @@
-import { Logger, Module, OnModuleInit, forwardRef } from '@nestjs/common';
+import { Logger, Module, OnModuleInit, ParseDatePipe, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RendezVous } from './entities/rendez-vous.entity';
 import { RendezVousController } from './controllers/rendez-vous.controller';
@@ -19,7 +19,7 @@ import { ProSante } from 'src/users/entities/pro-sante.entity';
     EmailService
   ],
   controllers: [RendezVousController],
-  exports: [RendezVousService],
+  exports: [RendezVousService, ParseDatePipe],
 })
 export class RendezVousModule {
   
