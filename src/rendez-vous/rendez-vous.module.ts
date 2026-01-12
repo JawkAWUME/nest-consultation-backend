@@ -1,4 +1,4 @@
-import { Logger, Module, OnModuleInit, ParseDatePipe, forwardRef } from '@nestjs/common';
+import { Logger, Module, OnModuleInit, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RendezVous } from './entities/rendez-vous.entity';
 import { RendezVousController } from './controllers/rendez-vous.controller';
@@ -8,6 +8,7 @@ import { WebsocketService } from '../websocket/websocket.service';
 import { UsersModule } from 'src/users/users.module';
 import { Patient } from 'src/users/entities/patient.entity';
 import { ProSante } from 'src/users/entities/pro-sante.entity';
+import { ParseDatePipe } from '../common/pipes/parse-date.pipe'; // ✅ ton pipe custom 
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { ProSante } from 'src/users/entities/pro-sante.entity';
     EmailService, ParseDatePipe
   ],
   controllers: [RendezVousController],
-  exports: [RendezVousService],
+  exports: [RendezVousService, ParseDatePipe],
 })
 export class RendezVousModule {
   
