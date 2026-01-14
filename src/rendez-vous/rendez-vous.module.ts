@@ -20,7 +20,7 @@ import { ParseDatePipe } from '../common/pipes/parse-date.pipe'; // ✅ ton pipe
     EmailService, ParseDatePipe
   ],
   controllers: [RendezVousController],
-  exports: [RendezVousService, ParseDatePipe],
+  exports: [RendezVousService],
 })
 export class RendezVousModule {
   
