@@ -40,8 +40,8 @@ export class RendezVousController {
   @ApiOperation({ summary: 'Lister les rendez-vous d\'un patient' })
   async lister(
     @Param('id', ParseIntPipe) id: number,
-    @Query('startDate', new ParseDatePipe({ optional: true })) startDate?: Date,
-    @Query('endDate', new ParseDatePipe({ optional: true })) endDate?: Date,
+    @Query('startDate') startDate?: Date,
+    @Query('endDate') endDate?: Date,
   ): Promise<RendezVousDto[]> {
     // Limiter la période pour éviter des chargements trop lourds
     const defaultEnd = new Date();
@@ -59,11 +59,9 @@ export class RendezVousController {
   @ApiQuery({ name: 'date', required: false, type: Date })
   @ApiOperation({ summary: 'Lister les rendez-vous d\'un professionnel' })
   async listerPro(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('date', new ParseDatePipe({ optional: true })) date?: Date,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<RendezVousDto[]> {
     // Se limiter à une journée spécifique
-    const targetDate = date || new Date();
     return this.service.listerRendezVousParPro(id);
   }
 
@@ -98,7 +96,7 @@ export class RendezVousController {
   @ApiOperation({ summary: 'Optimiser une tournée médicale' })
   async optimiserTournee(
     @Param('id', ParseIntPipe) id: number,
-    @Query('date', new ParseDatePipe({ optional: true })) date?: Date,
+    @Query('date') date?: Date,
   ): Promise<TourneeOptimiseeDto> {
     const targetDate = date || new Date();
     return this.service.optimiserTournee(id);
@@ -124,7 +122,7 @@ export class RendezVousController {
   @ApiOperation({ summary: 'Créneaux disponibles' })
   async getCreneauxDisponibles(
     @Query('proId', ParseIntPipe) proId: number,
-    @Query('date', ParseDatePipe) date: Date,
+    @Query('date') date: Date,
     @Query('days', new ParseIntPipe({ optional: true })) days: number = 7
   ): Promise<Date[]> {
     // Limiter la période de recherche
