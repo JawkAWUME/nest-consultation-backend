@@ -17,7 +17,7 @@ import { ParseDatePipe } from '../common/pipes/parse-date.pipe'; // ✅ ton pipe
   ],
   providers: [
     RendezVousService,
-    EmailService, ParseDatePipe
+    EmailService
   ],
   controllers: [RendezVousController],
   exports: [RendezVousService],

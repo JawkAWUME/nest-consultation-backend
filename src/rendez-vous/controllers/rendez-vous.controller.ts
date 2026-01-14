@@ -9,7 +9,6 @@ import { RendezVousDto } from '../dto/rendez-vous.dto';
 import { TourneeOptimiseeDto } from '../dto/tournee-optimisee.dto';
 import { UpdateRendezVousDto } from '../dto/update-rendez-vous.dto';
 import { RendezVousService } from '../services/rendez-vous.service';
-import { ParseDatePipe } from 'src/common/pipes/parse-date.pipe';
 
 @ApiTags('Rendez-vous')
 @ApiBearerAuth()
